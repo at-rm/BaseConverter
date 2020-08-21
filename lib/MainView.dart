@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:converter/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -8,19 +7,21 @@ class MainView extends StatefulWidget {
   _MainViewState createState() => _MainViewState();
 }
 
-String result = 'hi';
-int startNum;
-int base = 2;
+String result = ' ';
+String startNum = '0';
+int fromBase = 10;
+int toBase = 2;
 
-String convertDecToBase(int dec, int base) {
+String convertDecToBase(String dec, int base) {
 
   // works for now; no error checking yet
   String output = '';
 
+  int decNum = int.parse(dec);
   do {
-    output += kChars[dec % base];
-    dec = (dec/base).floor();
-  } while (dec != 0);
+    output += kChars[decNum % base];
+    decNum = (decNum/base).floor();
+  } while (decNum != 0);
 
   return output.split('').reversed.join();
 }
@@ -30,7 +31,10 @@ String convertBaseToDec(String number, int base) {
   // works for now; no error checking yet
   if (base > 36) return 'Choose a smaller base.';
 
-  int result;
+  // in case user types in upper case numbers
+  number = number.trim();
+  number = number.toLowerCase();
+  int result = 0;
 
   for (int i = number.length - 1; i >= 0; i--) {
     int position = kChars.indexOf(number.substring(i, i+1));
@@ -52,8 +56,34 @@ class _MainViewState extends State<MainView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: 100.0,),
-          InputRow(leftText: 'Number To Convert', rightText: 'From Base',),
-          InputRow(leftText: 'Converted Number', rightText: 'To Base',),
+          InputRow(
+            leftText: 'Number To Convert',
+            rightText: 'From Base',
+            isTextField: true,
+            onChangedLeft: (String text) {
+              setState(() {
+                startNum = text;
+              });
+            },
+            onChangedRight: (String text) {
+              setState(() {
+                fromBase = int.parse(text);
+              });
+            },
+          ),
+          InputRow(
+            leftText: 'Converted Number',
+            rightText: 'To Base',
+            isTextField: false,
+            onChangedLeft: () {
+              print('Do nothing');
+            },
+            onChangedRight: (String text) {
+              setState(() {
+                toBase = int.parse(text);
+              });
+            },
+          ),
           Expanded(
             child: Center(
               child: FlatButton(
@@ -71,7 +101,11 @@ class _MainViewState extends State<MainView> {
                     child: Text('Convert', style: kButtonStyle,),
                   ),
                 ),
-                onPressed: () {print('hi');},
+                onPressed: () {
+                  setState(() {
+                    result = convertDecToBase(convertBaseToDec(startNum, fromBase), toBase);
+                  });
+                },
               ),
             ),
           ),
@@ -86,8 +120,11 @@ class InputRow extends StatelessWidget {
 
   final String leftText;
   final String rightText;
+  final bool isTextField;
+  final Function onChangedLeft;
+  final Function onChangedRight;
 
-  InputRow({@required this.leftText, @required this.rightText});
+  InputRow({@required this.leftText, @required this.rightText, @required this.isTextField, @required this.onChangedLeft, @required this.onChangedRight});
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +132,8 @@ class InputRow extends StatelessWidget {
       child: Container(
         child: Row(
           children: [
-            InputSide(flex: 3, text: leftText,),
-            InputSide(flex: 2, text: rightText,),
+            InputSide(flex: 3, text: leftText, child: isTextField ? NumberTextField(onChanged: onChangedLeft,) : ResultShower(),),
+            InputSide(flex: 2, text: rightText, child: NumberTextField(onChanged: onChangedRight,),),
           ],
         ),
       ),
@@ -104,12 +141,25 @@ class InputRow extends StatelessWidget {
   }
 }
 
+class ResultShower extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.fromLTRB(20.0, 10.0, 0.0, 0.0),
+        child: Text(result, style: kLabel, textAlign: TextAlign.left,),
+    );
+  }
+
+}
+
 class InputSide extends StatelessWidget {
 
   final int flex;
   final String text;
+  final Widget child;
 
-  InputSide({@required this.flex, @required this.text});
+  InputSide({@required this.flex, @required this.text, @required this.child, });
 
   @override
   Widget build(BuildContext context) {
@@ -128,22 +178,35 @@ class InputSide extends StatelessWidget {
             ),
             Expanded(
               flex: 5,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 40.0),
-                child: TextField(
-                  cursorColor: Colors.white,
-                  style: kLabel,
-                  decoration: InputDecoration(
-                    fillColor: Color(0xff424242),
-                    filled: true,
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white,),
-                    ),
-                  ),
-                ),
-              ),
+              child: child,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class NumberTextField extends StatelessWidget {
+
+  final Function onChanged;
+
+  NumberTextField({@required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 40.0),
+      child: TextField(
+        onChanged: onChanged,
+        cursorColor: Colors.white,
+        style: kLabel,
+        decoration: InputDecoration(
+          fillColor: Color(0xff424242),
+          filled: true,
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white,),
+          ),
         ),
       ),
     );
