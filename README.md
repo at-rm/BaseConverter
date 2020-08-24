@@ -1,16 +1,20 @@
-# converter
+# Convert from any base to any other base
 
-Convert numbers across different numeral systems
+This app lets you convert from any valid number system to any other valid number system.
 
-## Getting Started
+**Please understand the following constraints.**
 
-This project is a starting point for a Flutter application.
+* *A base must be greater than 1 and less than 37, since there are 10 digits plus 26 letters*
+* *Your input may only include characters that are in your chosen starting base*
 
-A few resources to get you started if this is your first Flutter project:
+Here is what the app looks like:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+<p float="left">
+  <img src="/initial.jpg" width="40%" />
+  <img src="/result.jpg" width="40%" />
+</p>
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Planned features
+
+* Copy converted number
+* Update UI
