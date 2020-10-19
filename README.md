@@ -13,8 +13,3 @@ Here is what the app looks like:
   <img src="/initial.jpg" width="40%" />
   <img src="/result.jpg" width="40%" />
 </p>
-
-## Planned features
-
-* Copy converted number
-* Update UI
